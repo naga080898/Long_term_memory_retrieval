@@ -112,9 +112,9 @@
   {% endfor %}
   {% elif msg.tool_call_id %}
   tool_call_id: {{ msg.tool_call_id }}
-  content: {{ msg.content | tojson }}
+  content: {{ (msg.content or "") | tojson }}
   {% else %}
-  content: {{ msg.content | tojson }}
+  content: {{ (msg.content or "") | tojson }}
   {% endif %}
 {% endfor %}
 {% endif %}

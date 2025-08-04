@@ -134,7 +134,7 @@ class RAGChatBot:
                 self.conversation_history.append({
                     "role": "tool",
                     "tool_call_id": tool_call.id,
-                    "content": tool_result
+                    "content": tool_result or ""
                 })
             
             # For final response, just use the accumulated conversation history
@@ -167,10 +167,10 @@ class RAGChatBot:
             final_message = final_response.choices[0].message
             self.conversation_history.append({
                 "role": "assistant",
-                "content": final_message.content
+                "content": final_message.content or ""
             })
             
-            return final_message.content
+            return final_message.content or ""
         
         else:
             # No tool calls, add user message and assistant response to history
@@ -180,10 +180,10 @@ class RAGChatBot:
             })
             self.conversation_history.append({
                 "role": "assistant",
-                "content": message.content
+                "content": message.content or ""
             })
             
-            return message.content
+            return message.content or ""
     
     def get_conversation_history(self) -> List[Dict[str, Any]]:
         """Get the full conversation history"""
