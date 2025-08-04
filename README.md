@@ -14,11 +14,16 @@ pip install -r requirements.txt
 # 2. Set up your OpenAI API key
 echo "OPENAI_API_KEY=your-api-key-here" > .env
 
-# 3. Run comprehensive demo
+# 3. Choose your interface:
+
+# Option A: Full RAG system with auto-retrieval
 python examples/demo_comprehensive_rag.py
 
-# 4. Or try interactive mode
-python examples/demo_comprehensive_rag.py interactive
+# Option B: Simple Q&A chatbot (lightweight)
+python simple_qa_chatbot.py
+
+# Option C: Visualize stored data
+jupyter notebook LLM_memory.ipynb
 ```
 
 ## ✨ Key Features
@@ -61,15 +66,20 @@ Bot: [Automatically retrieves work info, sees existing "Engineer" role]
 Enhanced_RAG_Chatbot/
 ├── 📚 Core System
 │   ├── rag_chat_example.py           # 🤖 Enhanced chatbot with auto-retrieval
+│   ├── simple_qa_chatbot.py          # 💬 Lightweight Q&A chatbot with sessions
 │   ├── rag_system.py                 # ⚙️ Core RAG implementation  
 │   ├── rag_tools.py                  # 🛠️ OpenAI function schemas
 │   ├── rag_tool_executor.py          # 🔧 Tool execution logic
 │   ├── llm_interface.py              # 🌐 OpenAI API interface
 │   └── prompt_builder.py             # 🎨 YAML template renderer
 │
+├── 🔍 Database Tools
+│   └── LLM_memory.ipynb              # 📊 Jupyter notebook for database visualization
+│
 ├── 🎨 Configuration
 │   ├── prompt_templates/
-│   │   └── intelligent_rag_chat.yaml # 🧠 Enhanced prompt with auto-deletion
+│   │   ├── intelligent_rag_chat.yaml # 🧠 Enhanced prompt with auto-deletion
+│   │   └── simple_qa.yaml            # 💬 Simple Q&A prompt template
 │   ├── requirements.txt              # 📦 Dependencies
 │   └── setup.py                      # 🔧 Package setup
 │
@@ -87,7 +97,8 @@ Enhanced_RAG_Chatbot/
 │   │   └── README_TEMPLATE_SYSTEM.md # 🎨 Template system guide
 │
 └── 💾 Data Storage
-    └── user_memory/                  # 👥 Isolated user databases
+    ├── user_memory/                  # 👥 Isolated user databases (.pkl files)
+    └── sessions/                     # 💬 Chat session histories (.jsonl files)
 ```
 
 ## 💡 Usage Examples
@@ -111,7 +122,105 @@ chatbot.chat("I no longer work at Google")
 # → Automatically finds work info and deletes it
 ```
 
-### 2. Testing All Features
+### 2. Simple Q&A Chatbot
+```bash
+# Run interactive simple chatbot (basic Q&A with optional background memory)
+python simple_qa_chatbot.py
+
+# Run basic demo
+python simple_qa_chatbot.py demo
+
+# Run configurable history demo
+python simple_qa_chatbot.py history-demo
+```
+
+#### Simple Chatbot Features:
+- **🗣️ Lightweight Q&A**: Chat without complex RAG operations
+- **📝 Session Management**: Persistent conversation history in JSONL format
+- **🧠 Optional Background Memory**: Automatic memory via RAG system when enabled
+- **⚙️ Configurable History**: Adjustable conversation history length
+- **💾 Session Persistence**: Save, load, and export chat sessions
+
+```python
+from simple_qa_chatbot import SimpleQAChatBot
+
+# Basic usage
+chatbot = SimpleQAChatBot(user_id="your_user_id")
+response = chatbot.chat("What is machine learning?")
+
+# With session management
+chatbot = SimpleQAChatBot(user_id="user123", session_id="existing_session")
+response = chatbot.chat("Continue our previous conversation")
+
+# Configure history length (keeps N pairs, clips at 2N)
+chatbot.set_history_length(5)  # Keep 5 conversation pairs
+```
+
+#### 🎮 **Interactive Commands:**
+When running `python simple_qa_chatbot.py`, these commands are available:
+```
+📋 Basic Commands:
+• help                     - Show all available commands  
+• quit/exit/bye           - Exit the chatbot
+• remember <info>         - Explicitly save information to memory
+• forget                  - Clear background memory
+
+📜 History Management:
+• history                 - Show conversation history
+• clear                   - Clear conversation history  
+• set-history <N>         - Set max history length to N pairs
+
+💾 Session Management:
+• sessions                - List all available sessions
+• load <session_id>       - Load a previous session
+• session                 - Show current session info
+• export                  - Export session for OpenAI training
+• delete-session          - Delete current session
+
+🧠 Memory Management:
+• memory-stats            - Show background memory statistics
+• toggle-memory           - Enable/disable background memory
+```
+
+### 3. Database Visualization
+```bash
+# Launch Jupyter notebook to visualize your RAG database
+jupyter notebook LLM_memory.ipynb
+```
+
+The notebook provides comprehensive database inspection tools:
+
+#### 📊 **What You Can Visualize:**
+- **📑 Stored Documents**: View all user information saved as text documents
+- **🏷️ Document Metadata**: Examine document IDs, timestamps, and structure
+- **🔢 Database Stats**: Check document count, dimension size, index type
+- **🎯 Vector Embeddings**: Inspect the raw embedding data (index_data array)
+
+#### 💡 **Example Usage in Notebook:**
+```python
+# Load and inspect a user's database
+file_path = "user_memory/your_user_id/rag_db_your_user_id.pkl"
+data = read_and_print_pkl(file_path)
+
+# View just the documents
+print(data['documents'])
+# Output: {'doc_0': 'Name: John, Job: Engineer...', 'doc_1': 'User likes...'}
+
+# Check database structure
+print(f"Index Type: {data['index_type']}")
+print(f"Embedding Dimension: {data['dimension']}")
+print(f"Total Documents: {len(data['documents'])}")
+```
+
+#### 🔍 **Database Structure:**
+- **`documents`**: Dictionary of document IDs → text content
+- **`metadata`**: Document metadata and timestamps
+- **`index_type`**: Vector index type (flat, ivf, hnsw)
+- **`dimension`**: Embedding vector dimension (384 for MiniLM)
+- **`doc_counter`**: Running count of documents created
+- **`index_data`**: Serialized FAISS index with vector embeddings
+
+### 4. Testing All Features
 ```bash
 # Comprehensive test demonstrating all capabilities
 python tests/test_rag_comprehensive.py
