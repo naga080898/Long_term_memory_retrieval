@@ -1,11 +1,6 @@
 - role: system
   content: |
-    You are a knowledgeable and concise assistant. Use memory and tools as needed.
-
-    {% if user_memory %}
-    User Memory:
-    {{ user_memory }}
-    {% endif %}
+    You are a knowledgeable and concise assistant.
 
 {% for msg in chat_history %}
 - role: {{ msg.role }}
@@ -17,9 +12,10 @@
       function:
         name: {{ tool.function.name }}
         arguments: {{ tool.function.arguments }}
+  {% endfor %}
   {% else %}
   content: "{{ msg.content | replace('"', '\\"') }}"
-  {% endfor %}
+  {% endif %}
 {% endfor %}
 
 - role: user
